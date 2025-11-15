@@ -1,0 +1,135 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+```
+
+---
+
+## ✅ ESTRUCTURA FINAL DEL PROYECTO
+```
+sistema-gestion-socios-v2/
+├── node_modules/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── Badge.jsx
+│   │   │   ├── Button.jsx
+│   │   │   ├── Card.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── Input.jsx
+│   │   │   ├── Loading.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── SearchBox.jsx
+│   │   │   ├── Select.jsx
+│   │   │   ├── StatCard.jsx
+│   │   │   ├── Table.jsx
+│   │   │   └── index.js
+│   │   └── layout/
+│   │       ├── Header.jsx
+│   │       ├── MainLayout.jsx
+│   │       ├── PageHeader.jsx
+│   │       ├── Sidebar.jsx
+│   │       └── index.js
+│   ├── context/
+│   │   ├── AppContext.jsx
+│   │   └── AuthContext.jsx
+│   ├── hooks/
+│   │   ├── useAportes.js
+│   │   ├── useApp.js
+│   │   ├── useAuth.js
+│   │   ├── useDocumentos.js
+│   │   ├── useLibroCaja.js
+│   │   ├── useProyectos.js
+│   │   ├── useRecibos.js
+│   │   ├── useReportes.js
+│   │   ├── useReuniones.js
+│   │   └── useSocios.js
+│   ├── services/
+│   │   ├── pdf/
+│   │   └── supabase/
+│   │       ├── aportesService.js
+│   │       ├── authService.js
+│   │       ├── client.js
+│   │       ├── documentosService.js
+│   │       ├── libroCajaService.js
+│   │       ├── proyectosService.js
+│   │       ├── recibosService.js
+│   │       ├── reunionesService.js
+│   │       └── sociosService.js
+│   ├── utils/
+│   │   ├── constants.js
+│   │   ├── formatters.js
+│   │   └── validators.js
+│   ├── views/
+│   │   ├── aportes/
+│   │   │   ├── AportesView.jsx
+│   │   │   └── index.js
+│   │   ├── asistencia/
+│   │   │   ├── AsistenciaView.jsx
+│   │   │   └── index.js
+│   │   ├── auth/
+│   │   │   ├── LoginView.jsx
+│   │   │   └── index.js
+│   │   ├── configuracion/
+│   │   │   ├── ConfiguracionView.jsx
+│   │   │   └── index.js
+│   │   ├── dashboard/
+│   │   │   ├── DashboardView.jsx
+│   │   │   └── index.js
+│   │   ├── documentos/
+│   │   │   ├── DocumentosView.jsx
+│   │   │   └── index.js
+│   │   ├── libro-caja/
+│   │   │   ├── LibroCajaView.jsx
+│   │   │   └── index.js
+│   │   ├── proyectos/
+│   │   │   ├── ProyectosView.jsx
+│   │   │   └── index.js
+│   │   ├── recibos/
+│   │   │   ├── RecibosView.jsx
+│   │   │   └── index.js
+│   │   ├── reportes/
+│   │   │   ├── ReportesView.jsx
+│   │   │   └── index.js
+│   │   └── socios/
+│   │       ├── SociosView.jsx
+│   │       └── index.js
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── .env
+├── .gitignore
+├── index.html
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+└── vite.config.js
