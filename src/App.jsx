@@ -1,22 +1,24 @@
 // src/App.jsx
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useApp } from './context/AppContext';
 import { MainLayout } from './components/layout';
 import { Loading } from './components/common';
 
-// Importar todas las vistas
+// Importar Login normalmente (se necesita inmediatamente)
 import { LoginView } from './views/auth';
-import { DashboardView } from './views/dashboard';
-import { SociosView } from './views/socios';
-import { AportesView } from './views/aportes';
-import { AsistenciaView } from './views/asistencia';
-import { ProyectosView } from './views/proyectos';
-import { LibroCajaView } from './views/libro-caja';
-import { RecibosView } from './views/recibos';
-import { DocumentosView } from './views/documentos';
-import { ReportesView } from './views/reportes';
-import { ConfiguracionView } from './views/configuracion';
+
+// Lazy loading para las demás vistas
+const DashboardView = lazy(() => import('./views/dashboard/DashboardView'));
+const SociosView = lazy(() => import('./views/socios/SociosView'));
+const AportesView = lazy(() => import('./views/aportes/AportesView'));
+const AsistenciaView = lazy(() => import('./views/asistencia/AsistenciaView'));
+const ProyectosView = lazy(() => import('./views/proyectos/ProyectosView'));
+const LibroCajaView = lazy(() => import('./views/libro-caja/LibroCajaView'));
+const RecibosView = lazy(() => import('./views/recibos/RecibosView'));
+const DocumentosView = lazy(() => import('./views/documentos/DocumentosView'));
+const ReportesView = lazy(() => import('./views/reportes/ReportesView'));
+const ConfiguracionView = lazy(() => import('./views/configuracion/ConfiguracionView'));
 
 function App() {
   const { session, loading: authLoading } = useAuth();
@@ -39,30 +41,37 @@ function App() {
 
   // Renderizar vista según currentView
   const renderView = () => {
-    switch (currentView) {
-      case 'inicio':
-        return <DashboardView />;
-      case 'socios':
-        return <SociosView />;
-      case 'aportes':
-        return <AportesView />;
-      case 'asistencia':
-        return <AsistenciaView />;
-      case 'proyectos':
-        return <ProyectosView />;
-      case 'libro-caja':
-        return <LibroCajaView />;
-      case 'recibos':
-        return <RecibosView />;
-      case 'documentos':
-        return <DocumentosView />;
-      case 'reportes':
-        return <ReportesView />;
-      case 'configuracion':
-        return <ConfiguracionView />;
-      default:
-        return <DashboardView />;
-    }
+    // Envolver en Suspense para mostrar loading mientras carga la vista
+    return (
+      <Suspense fallback={<Loading message="Cargando vista..." />}>
+        {(() => {
+          switch (currentView) {
+            case 'inicio':
+              return <DashboardView />;
+            case 'socios':
+              return <SociosView />;
+            case 'aportes':
+              return <AportesView />;
+            case 'asistencia':
+              return <AsistenciaView />;
+            case 'proyectos':
+              return <ProyectosView />;
+            case 'libro-caja':
+              return <LibroCajaView />;
+            case 'recibos':
+              return <RecibosView />;
+            case 'documentos':
+              return <DocumentosView />;
+            case 'reportes':
+              return <ReportesView />;
+            case 'configuracion':
+              return <ConfiguracionView />;
+            default:
+              return <DashboardView />;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (

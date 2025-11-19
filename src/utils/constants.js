@@ -25,6 +25,16 @@ export const TIPOS_APORTE = {
   OTRO: 'otro'
 };
 
+// Métodos de pago para aportes (versión simplificada)
+export const TIPOS_PAGO = {
+  EFECTIVO: 'efectivo',
+  TRANSFERENCIA: 'transferencia',
+  YAPE: 'yape',
+  PLIN: 'plin',
+  DEPOSITO: 'deposito',
+  CHEQUE: 'cheque'
+};
+
 // Estados de proyectos
 export const ESTADOS_PROYECTO = {
   PLANIFICADO: 'planificado',
@@ -207,6 +217,7 @@ export default {
   ASOCIACION_INFO,
   ESTADOS_SOCIO,
   TIPOS_APORTE,
+  TIPOS_PAGO,
   ESTADOS_PROYECTO,
   ESTADOS_REUNION,
   TIPOS_REUNION,
@@ -223,3 +234,14 @@ export default {
   LIMITES,
   FORMATO_FECHA
 };
+// AGREGAR ESTAS LÍNEAS AL FINAL DE TU ARCHIVO src/utils/constants.js
+
+// Información adicional para PDFs (opcional - personalizar según necesidad)
+ASOCIACION_INFO.direccion = 'Asentamiento Humano Esperanza Central II Etapa - Huaral';
+ASOCIACION_INFO.telefono = '+51 923732863'; // Cambiar por tu teléfono
+ASOCIACION_INFO.email = 'cp.esperanzacentral@gmail.com'; // Cambiar por tu email
+ASOCIACION_INFO.ruc = '20613166077'; // Opcional - RUC de la asociación
+ASOCIACION_INFO.web = 'www.esperanzacentral.com'; // Opcional
+
+// Si ya existe ASOCIACION_INFO, solo agregar las propiedades faltantes:
+// direccion, telefono, email pueden usarse desde tu constante existente

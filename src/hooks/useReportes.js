@@ -1,6 +1,9 @@
 // src/hooks/useReportes.js
 import { useApp } from '../context/AppContext';
 import { getCurrentMonth, getMonthName } from '../utils/formatters';
+// NUEVAS IMPORTACIONES
+import * as pdfService from '../services/pdf/pdfService';
+import * as excelService from '../services/excel/excelService';
 
 /**
  * Hook personalizado para generación de reportes
@@ -10,7 +13,8 @@ export const useReportes = () => {
     socios, 
     aportes, 
     reuniones,
-    libroCaja 
+    libroCaja,
+    proyectos // Agregar proyectos
   } = useApp();
 
   // ==================== REPORTE DE SOCIOS ====================
@@ -201,7 +205,7 @@ export const useReportes = () => {
     };
   };
 
-  // ==================== EXPORTAR A CSV ====================
+  // ==================== EXPORTAR A CSV (ORIGINAL) ====================
   const exportarCSV = (tipo, datos) => {
     let csv = '';
     let filename = '';
@@ -262,15 +266,105 @@ export const useReportes = () => {
     }
   };
 
-  // Importar proyectos desde useApp
-  const { proyectos } = useApp();
+  // ==================== NUEVAS FUNCIONES: EXPORTAR A PDF ====================
+  const exportarSociosPDF = (filtro = 'todos') => {
+    const sociosFiltrados = filtro === 'todos' 
+      ? socios 
+      : socios.filter(s => s.estado === filtro);
+    pdfService.generarListaSociosPDF(sociosFiltrados, filtro);
+  };
+
+  const exportarMorososPDF = () => {
+    const morosos = socios.filter(s => s.cuota > s.pagado && s.estado === 'activo');
+    pdfService.generarListaSociosPDF(morosos, 'morosos');
+  };
+
+  const exportarFinancieroPDF = (mes, año) => {
+    const movimientosMes = libroCaja.filter(m => {
+      const fecha = new Date(m.fecha);
+      return fecha.getMonth() + 1 === mes && fecha.getFullYear() === año;
+    });
+
+    const ingresos = movimientosMes
+      .filter(m => m.tipo === 'ingreso')
+      .reduce((acc, m) => acc + parseFloat(m.monto), 0);
+    
+    const egresos = movimientosMes
+      .filter(m => m.tipo === 'egreso')
+      .reduce((acc, m) => acc + parseFloat(m.monto), 0);
+
+    const balance = {
+      ingresos,
+      egresos,
+      balance: ingresos - egresos
+    };
+
+    pdfService.generarReporteFinancieroPDF(mes, año, movimientosMes, balance);
+  };
+
+  const exportarAsistenciasPDF = () => {
+    const sociosActivos = socios.filter(s => s.estado === 'activo');
+    pdfService.generarReporteAsistenciaPDF(reuniones, sociosActivos);
+  };
+
+  const exportarEstadoCuentaPDF = (socioId) => {
+    const socio = socios.find(s => s.id === socioId);
+    if (!socio) {
+      alert('Socio no encontrado');
+      return;
+    }
+    const aportesSocio = aportes.filter(a => a.socio_id === socioId);
+    pdfService.generarEstadoCuentaPDF(socio, aportesSocio);
+  };
+
+  // ==================== NUEVAS FUNCIONES: EXPORTAR A EXCEL ====================
+  const exportarSociosExcel = () => {
+    excelService.exportarSociosExcel(socios);
+  };
+
+  const exportarAportesExcel = () => {
+    excelService.exportarAportesExcel(aportes, socios);
+  };
+
+  const exportarLibroCajaExcel = () => {
+    excelService.exportarLibroCajaExcel(libroCaja);
+  };
+
+  const exportarReunionesExcel = () => {
+    excelService.exportarReunionesExcel(reuniones, socios);
+  };
+
+  const exportarProyectosExcel = () => {
+    excelService.exportarProyectosExcel(proyectos);
+  };
+
+  const exportarAsistenciasExcel = () => {
+    const sociosActivos = socios.filter(s => s.estado === 'activo');
+    excelService.exportarAsistenciaExcel(reuniones, sociosActivos);
+  };
 
   return {
+    // Funciones originales
     generarReporteSocios,
     generarReporteMorosos,
     generarReporteFinanciero,
     generarReporteAsistencias,
     generarReporteProyectos,
-    exportarCSV
+    exportarCSV,
+    
+    // Nuevas funciones PDF
+    exportarSociosPDF,
+    exportarMorososPDF,
+    exportarFinancieroPDF,
+    exportarAsistenciasPDF,
+    exportarEstadoCuentaPDF,
+    
+    // Nuevas funciones Excel
+    exportarSociosExcel,
+    exportarAportesExcel,
+    exportarLibroCajaExcel,
+    exportarReunionesExcel,
+    exportarProyectosExcel,
+    exportarAsistenciasExcel
   };
 };

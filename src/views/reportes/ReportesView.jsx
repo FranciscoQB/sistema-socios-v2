@@ -1,6 +1,14 @@
 // src/views/reportes/ReportesView.jsx
 import React, { useState } from 'react';
-import { Users, DollarSign, BarChart3, Calendar, Download, FileText, X } from 'lucide-react';
+import { 
+  Users, 
+  DollarSign, 
+  BarChart3, 
+  Calendar, 
+  Download, 
+  FileText, 
+  FileSpreadsheet 
+} from 'lucide-react';
 import { useReportes } from '../../hooks/useReportes';
 import { useSocios } from '../../hooks/useSocios';
 import {
@@ -10,7 +18,9 @@ import {
   ModalFooter,
   Table,
   Badge,
-  StatCard
+  StatCard,
+  Select,
+  Input
 } from '../../components/common';
 import { PageHeader } from '../../components/layout';
 import { formatCurrency } from '../../utils/formatters';
@@ -25,11 +35,30 @@ const ReportesView = () => {
     generarReporteMorosos,
     generarReporteFinanciero,
     generarReporteAsistencias,
-    exportarCSV
+    exportarCSV,
+    // Nuevas funciones PDF
+    exportarSociosPDF,
+    exportarMorososPDF,
+    exportarFinancieroPDF,
+    exportarAsistenciasPDF,
+    // Nuevas funciones Excel
+    exportarSociosExcel,
+    exportarAportesExcel,
+    exportarLibroCajaExcel,
+    exportarReunionesExcel,
+    exportarProyectosExcel,
+    exportarAsistenciasExcel
   } = useReportes();
 
   const [reporteActivo, setReporteActivo] = useState(null);
   const [reporteData, setReporteData] = useState(null);
+  
+  // Filtros para reportes
+  const [filtros, setFiltros] = useState({
+    mes: new Date().getMonth() + 1,
+    año: new Date().getFullYear(),
+    estadoSocio: 'todos'
+  });
 
   // Abrir reporte
   const abrirReporte = (tipo) => {
@@ -60,9 +89,49 @@ const ReportesView = () => {
     setReporteData(null);
   };
 
-  // Exportar reporte
-  const handleExportar = () => {
+  // Exportar reporte CSV (función original)
+  const handleExportarCSV = () => {
     exportarCSV(reporteActivo, reporteData);
+  };
+
+  // NUEVAS FUNCIONES: Exportar a PDF
+  const handleExportarPDF = () => {
+    switch (reporteActivo) {
+      case 'socios':
+        exportarSociosPDF(filtros.estadoSocio);
+        break;
+      case 'morosos':
+        exportarMorososPDF();
+        break;
+      case 'financiero':
+        exportarFinancieroPDF(filtros.mes, filtros.año);
+        break;
+      case 'asistencias':
+        exportarAsistenciasPDF();
+        break;
+      default:
+        break;
+    }
+  };
+
+  // NUEVAS FUNCIONES: Exportar a Excel
+  const handleExportarExcel = () => {
+    switch (reporteActivo) {
+      case 'socios':
+        exportarSociosExcel();
+        break;
+      case 'morosos':
+        exportarSociosExcel(); // Exporta todos, luego se puede filtrar
+        break;
+      case 'financiero':
+        exportarAportesExcel();
+        break;
+      case 'asistencias':
+        exportarAsistenciasExcel();
+        break;
+      default:
+        break;
+    }
   };
 
   // Imprimir reporte
@@ -72,10 +141,59 @@ const ReportesView = () => {
 
   return (
     <div>
-      <PageHeader title="Reportes" />
+      <PageHeader 
+        title="Reportes" 
+        subtitle="Genera reportes detallados en PDF, Excel o CSV"
+      />
+
+      {/* Filtros globales */}
+      <Card className="mb-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Filtros de Reportes</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Select
+            label="Mes"
+            value={filtros.mes}
+            onChange={(e) => setFiltros({ ...filtros, mes: parseInt(e.target.value) })}
+            options={[
+              { value: 1, label: 'Enero' },
+              { value: 2, label: 'Febrero' },
+              { value: 3, label: 'Marzo' },
+              { value: 4, label: 'Abril' },
+              { value: 5, label: 'Mayo' },
+              { value: 6, label: 'Junio' },
+              { value: 7, label: 'Julio' },
+              { value: 8, label: 'Agosto' },
+              { value: 9, label: 'Septiembre' },
+              { value: 10, label: 'Octubre' },
+              { value: 11, label: 'Noviembre' },
+              { value: 12, label: 'Diciembre' }
+            ]}
+          />
+
+          <Input
+            label="Año"
+            type="number"
+            value={filtros.año}
+            onChange={(e) => setFiltros({ ...filtros, año: parseInt(e.target.value) })}
+            min="2020"
+            max="2030"
+          />
+
+          <Select
+            label="Estado de Socio"
+            value={filtros.estadoSocio}
+            onChange={(e) => setFiltros({ ...filtros, estadoSocio: e.target.value })}
+            options={[
+              { value: 'todos', label: 'Todos' },
+              { value: 'activo', label: 'Activos' },
+              { value: 'inactivo', label: 'Inactivos' }
+            ]}
+          />
+        </div>
+      </Card>
 
       {/* Grid de reportes disponibles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Reporte de Socios */}
         <Card
           className="cursor-pointer hover:shadow-lg transition-shadow duration-300"
@@ -153,6 +271,63 @@ const ReportesView = () => {
         </Card>
       </div>
 
+      {/* Sección de Exportaciones Rápidas */}
+      <Card title="Exportaciones Rápidas">
+        <p className="text-sm text-gray-600 mb-4">
+          Exporta datos directamente sin previsualización
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileSpreadsheet size={16} />}
+            onClick={exportarSociosExcel}
+          >
+            Lista de Socios (Excel)
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileSpreadsheet size={16} />}
+            onClick={exportarAportesExcel}
+          >
+            Aportes (Excel)
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileSpreadsheet size={16} />}
+            onClick={exportarLibroCajaExcel}
+          >
+            Libro de Caja (Excel)
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileSpreadsheet size={16} />}
+            onClick={exportarReunionesExcel}
+          >
+            Reuniones (Excel)
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileSpreadsheet size={16} />}
+            onClick={exportarProyectosExcel}
+          >
+            Proyectos (Excel)
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileText size={16} />}
+            onClick={() => exportarSociosPDF('todos')}
+          >
+            Lista Socios (PDF)
+          </Button>
+        </div>
+      </Card>
+
       {/* Modal de Reporte */}
       {reporteActivo && reporteData && (
         <Modal
@@ -166,15 +341,31 @@ const ReportesView = () => {
           }
           size="xlarge"
         >
-          {/* Acciones */}
+          {/* Acciones MEJORADAS con más opciones */}
           <div className="flex gap-3 pb-4 border-b border-gray-200 mb-6">
+            <Button
+              variant="primary"
+              size="small"
+              icon={<FileText size={16} />}
+              onClick={handleExportarPDF}
+            >
+              Exportar PDF
+            </Button>
+            <Button
+              variant="primary"
+              size="small"
+              icon={<FileSpreadsheet size={16} />}
+              onClick={handleExportarExcel}
+            >
+              Exportar Excel
+            </Button>
             <Button
               variant="secondary"
               size="small"
               icon={<Download size={16} />}
-              onClick={handleExportar}
+              onClick={handleExportarCSV}
             >
-              Exportar Excel
+              Exportar CSV
             </Button>
             <Button
               variant="secondary"

@@ -52,40 +52,79 @@ const ConfiguracionView = () => {
   };
 
   // Crear usuario
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const email = formData.get('email');
-    const password = formData.get('password');
-    const nombre = formData.get('nombre');
-    const rol = formData.get('rol');
+const handleCreateUser = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const email = formData.get('email');
+  const password = formData.get('password');
+  const nombre = formData.get('nombre');
+  const rol = formData.get('rol');
 
-    try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+  try {
+    // 1. Crear usuario en auth
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true
+    });
+
+    if (authError) {
+      // Si no tenemos permisos de admin, intentar signUp normal
+      console.log('Intentando con signUp normal...');
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password
       });
 
-      if (authError) throw authError;
+      if (signUpError) throw signUpError;
 
+      if (!signUpData.user) {
+        throw new Error('No se pudo crear el usuario');
+      }
+
+      // Usar el ID del usuario creado con signUp
+      const userId = signUpData.user.id;
+
+      // 2. Crear perfil
       const { error: profileError } = await supabase
         .from('perfiles')
         .insert([{
-          id: authData.user.id,
+          id: userId,
           nombre: nombre,
           rol: rol
         }]);
 
       if (profileError) throw profileError;
 
-      alert(MENSAJES_EXITO.USUARIO_CREADO);
+      alert(MENSAJES_EXITO.USUARIO_CREADO + '\n\nNOTA: El usuario debe confirmar su email.');
       setShowModal(false);
       loadUsuarios();
-    } catch (error) {
-      console.error('Error creando usuario:', error);
-      alert('Error al crear usuario: ' + error.message);
+      return;
     }
-  };
+
+    // Si llegamos aquí, el admin.createUser funcionó
+    const userId = authData.user.id;
+
+    // 2. Crear perfil
+    const { error: profileError } = await supabase
+      .from('perfiles')
+      .insert([{
+        id: userId,
+        nombre: nombre,
+        rol: rol
+      }]);
+
+    if (profileError) throw profileError;
+
+    alert(MENSAJES_EXITO.USUARIO_CREADO);
+    setShowModal(false);
+    loadUsuarios();
+
+  } catch (error) {
+    console.error('Error creando usuario:', error);
+    alert('Error al crear usuario: ' + error.message);
+  }
+};
 
   // Actualizar rol de usuario
   const handleUpdateRole = async (userId, nuevoRol) => {
