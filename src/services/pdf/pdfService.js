@@ -1,6 +1,6 @@
 // src/services/pdf/pdfService.js
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable'; // ⚠️ CAMBIO IMPORTANTE
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { ASOCIACION_INFO } from '../../utils/constants';
 
@@ -74,7 +74,8 @@ export const generarListaSociosPDF = (socios, filtro = 'todos') => {
     s.estado
   ]);
   
-  doc.autoTable({
+  // Usar autoTable importado
+  autoTable(doc, {
     startY: yPos,
     head: [['Nombre', 'DNI', 'Lote', 'Teléfono', 'Cuota', 'Pagado', 'Estado']],
     body: sociosData,
@@ -114,7 +115,7 @@ export const generarReporteFinancieroPDF = (mes, año, movimientos, balance) => 
   
   yPos += 10;
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     body: [
       ['Total Ingresos:', formatCurrency(balance.ingresos)],
@@ -136,7 +137,7 @@ export const generarReporteFinancieroPDF = (mes, año, movimientos, balance) => 
     }
   });
   
-  yPos = doc.lastAutoTable.finalY + 15;
+  yPos = doc.previousAutoTable.finalY + 15;
   
   // Detalle de movimientos - Ingresos
   doc.setFontSize(12);
@@ -153,7 +154,7 @@ export const generarReporteFinancieroPDF = (mes, año, movimientos, balance) => 
     m.categoria || '-'
   ]);
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [['Fecha', 'Concepto', 'Monto', 'Categoría']],
     body: ingresosData.length > 0 ? ingresosData : [['No hay ingresos registrados', '', '', '']],
@@ -162,7 +163,7 @@ export const generarReporteFinancieroPDF = (mes, año, movimientos, balance) => 
     margin: { left: 20, right: 20 }
   });
   
-  yPos = doc.lastAutoTable.finalY + 15;
+  yPos = doc.previousAutoTable.finalY + 15;
   
   // Detalle de movimientos - Egresos
   doc.setFontSize(12);
@@ -179,7 +180,7 @@ export const generarReporteFinancieroPDF = (mes, año, movimientos, balance) => 
     m.categoria || '-'
   ]);
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [['Fecha', 'Concepto', 'Monto', 'Categoría']],
     body: egresosData.length > 0 ? egresosData : [['No hay egresos registrados', '', '', '']],
@@ -235,7 +236,7 @@ export const generarReporteAsistenciaPDF = (reuniones, socios) => {
   // Ordenar por porcentaje descendente
   asistenciaPorSocio.sort((a, b) => parseFloat(b[5]) - parseFloat(a[5]));
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [['Socio', 'DNI', 'Lote', 'Asistió', 'Total', '% Asistencia']],
     body: asistenciaPorSocio,
@@ -288,7 +289,7 @@ export const generarEstadoCuentaPDF = (socio, aportes) => {
   const totalPagado = socio.pagado;
   const saldo = cuotaMensual - totalPagado;
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     body: [
       ['Cuota Mensual:', formatCurrency(cuotaMensual)],
@@ -303,7 +304,7 @@ export const generarEstadoCuentaPDF = (socio, aportes) => {
     }
   });
   
-  yPos = doc.lastAutoTable.finalY + 15;
+  yPos = doc.previousAutoTable.finalY + 15;
   
   // Historial de pagos
   doc.setFontSize(12);
@@ -319,7 +320,7 @@ export const generarEstadoCuentaPDF = (socio, aportes) => {
     aporte.tipo
   ]);
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [['Fecha', 'Concepto', 'Monto', 'Tipo']],
     body: aportesData.length > 0 ? aportesData : [['No hay pagos registrados', '', '', '']],
