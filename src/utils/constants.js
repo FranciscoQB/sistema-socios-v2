@@ -8,7 +8,12 @@
 export const ASOCIACION_INFO = {
   nombre: 'Asociación Centro Poblado Esperanza Central',
   ubicacion: 'Asentamiento Humano Esperanza Central II Etapa - Huaral',
-  version: '2.0.0'
+  version: '2.0.0',
+  direccion: 'Asentamiento Humano Esperanza Central II Etapa - Huaral',
+  telefono: '+51 923732863',
+  email: 'cp.esperanzacentral@gmail.com',
+  ruc: '20613166077',
+  web: 'www.esperanzacentral.com'
 };
 
 // Estados de socios
@@ -97,67 +102,97 @@ export const ESTADOS_RECIBO = {
   ANULADO: 'anulado'
 };
 
-// Roles de usuarios
+// Roles de usuarios (ACTUALIZADO CON NUEVO SISTEMA)
 export const ROLES_USUARIO = {
+  SUPER_ADMIN: 'super_admin',
+  PRESIDENTE: 'presidente',
+  TESORERO: 'tesorero',
+  SECRETARIO: 'secretario',
+  DELEGADO: 'delegado',
+  SOCIO: 'socio',
+  // Mantener compatibilidad con roles antiguos
   ADMIN: 'admin',
   USUARIO: 'usuario'
 };
 
-// Navegación del sidebar
+// Navegación del sidebar CON ROLES
 export const MENU_ITEMS = [
   {
     id: 'inicio',
     label: 'Inicio',
-    icon: 'Users',
-    path: '/inicio'
+    icon: 'Home',
+    path: '/inicio',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
   },
   {
     id: 'socios',
     label: 'Socios',
     icon: 'Users',
-    path: '/socios'
+    path: '/socios',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado']
   },
   {
     id: 'aportes',
     label: 'Aportes',
     icon: 'DollarSign',
-    path: '/aportes'
+    path: '/aportes',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
+  },
+  {
+    id: 'registro-masivo',
+    label: 'Registro Masivo',
+    icon: 'CheckSquare',
+    path: '/registro-masivo',
+    roles: ['super_admin', 'presidente', 'tesorero']
   },
   {
     id: 'libro-caja',
     label: 'Libro de Caja',
-    icon: 'FileText',
-    path: '/libro-caja'
+    icon: 'BookOpen',
+    path: '/libro-caja',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario']
   },
   {
     id: 'recibos',
     label: 'Recibos',
     icon: 'FileText',
-    path: '/recibos'
+    path: '/recibos',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
   },
   {
     id: 'asistencia',
     label: 'Asistencia',
     icon: 'BarChart3',
-    path: '/asistencia'
+    path: '/asistencia',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
   },
   {
     id: 'reportes',
     label: 'Reportes',
-    icon: 'FileText',
-    path: '/reportes'
+    icon: 'PieChart',
+    path: '/reportes',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
   },
   {
     id: 'documentos',
     label: 'Documentos',
     icon: 'FolderOpen',
-    path: '/documentos'
+    path: '/documentos',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
   },
   {
     id: 'proyectos',
     label: 'Proyectos',
     icon: 'Briefcase',
-    path: '/proyectos'
+    path: '/proyectos',
+    roles: ['super_admin', 'presidente', 'tesorero', 'secretario', 'delegado', 'socio']
+  },
+  {
+    id: 'usuarios',
+    label: 'Usuarios',
+    icon: 'UserCog',
+    path: '/usuarios',
+    roles: ['super_admin', 'presidente']
   }
 ];
 
@@ -234,14 +269,3 @@ export default {
   LIMITES,
   FORMATO_FECHA
 };
-// AGREGAR ESTAS LÍNEAS AL FINAL DE TU ARCHIVO src/utils/constants.js
-
-// Información adicional para PDFs (opcional - personalizar según necesidad)
-ASOCIACION_INFO.direccion = 'Asentamiento Humano Esperanza Central II Etapa - Huaral';
-ASOCIACION_INFO.telefono = '+51 923732863'; // Cambiar por tu teléfono
-ASOCIACION_INFO.email = 'cp.esperanzacentral@gmail.com'; // Cambiar por tu email
-ASOCIACION_INFO.ruc = '20613166077'; // Opcional - RUC de la asociación
-ASOCIACION_INFO.web = 'www.esperanzacentral.com'; // Opcional
-
-// Si ya existe ASOCIACION_INFO, solo agregar las propiedades faltantes:
-// direccion, telefono, email pueden usarse desde tu constante existente

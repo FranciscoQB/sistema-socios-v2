@@ -12,6 +12,7 @@ import { LoginView } from './views/auth';
 const DashboardView = lazy(() => import('./views/dashboard/DashboardView'));
 const SociosView = lazy(() => import('./views/socios/SociosView'));
 const AportesView = lazy(() => import('./views/aportes/AportesView'));
+const RegistroMasivoView = lazy(() => import('./views/registro-masivo/RegistroMasivoView'));
 const AsistenciaView = lazy(() => import('./views/asistencia/AsistenciaView'));
 const ProyectosView = lazy(() => import('./views/proyectos/ProyectosView'));
 const LibroCajaView = lazy(() => import('./views/libro-caja/LibroCajaView'));
@@ -19,6 +20,7 @@ const RecibosView = lazy(() => import('./views/recibos/RecibosView'));
 const DocumentosView = lazy(() => import('./views/documentos/DocumentosView'));
 const ReportesView = lazy(() => import('./views/reportes/ReportesView'));
 const ConfiguracionView = lazy(() => import('./views/configuracion/ConfiguracionView'));
+const UsuariosView = lazy(() => import('./views/usuarios/UsuariosView'));
 
 function App() {
   const { session, loading: authLoading } = useAuth();
@@ -52,6 +54,8 @@ function App() {
               return <SociosView />;
             case 'aportes':
               return <AportesView />;
+              case 'registro-masivo':
+              return <RegistroMasivoView />;
             case 'asistencia':
               return <AsistenciaView />;
             case 'proyectos':
@@ -68,6 +72,8 @@ function App() {
               return <ConfiguracionView />;
             default:
               return <DashboardView />;
+            case 'usuarios':
+               return <UsuariosView />;
           }
         })()}
       </Suspense>

@@ -3,14 +3,10 @@ import React from 'react';
 import { Download } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { MENU_ITEMS, ASOCIACION_INFO } from '../../utils/constants';
+import { useAuth } from '../../context/AuthContext';
 
 /**
- * Componente Sidebar - Barra lateral de navegación
- * @param {string} currentView - Vista actual activa
- * @param {function} onNavigate - Función para cambiar de vista
- * @param {boolean} isOpen - Si el sidebar está abierto (móvil)
- * @param {function} onClose - Función para cerrar el sidebar (móvil)
- * @param {function} onExport - Función para exportar datos
+ * Componente Sidebar - Barra lateral de navegación con roles
  */
 const Sidebar = ({
   currentView,
@@ -19,6 +15,8 @@ const Sidebar = ({
   onClose,
   onExport
 }) => {
+  const { userProfile, rolLabel } = useAuth();
+
   // Función para obtener el componente de ícono
   const getIcon = (iconName) => {
     const IconComponent = Icons[iconName];
@@ -32,6 +30,23 @@ const Sidebar = ({
       onClose();
     }
   };
+
+  // Filtrar menú según rol del usuario
+  const getMenuItemsForUser = () => {
+    if (!userProfile || !userProfile.rol) {
+      return MENU_ITEMS; // Mostrar todo si no hay perfil (fallback)
+    }
+
+    return MENU_ITEMS.filter(item => {
+      // Si el item no tiene roles definidos, mostrarlo a todos
+      if (!item.roles || item.roles.length === 0) return true;
+      
+      // Verificar si el rol del usuario está en la lista de roles permitidos
+      return item.roles.includes(userProfile.rol);
+    });
+  };
+
+  const menuItems = getMenuItemsForUser();
 
   return (
     <>
@@ -56,17 +71,25 @@ const Sidebar = ({
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-200">
           <h2 className="text-sm font-bold text-gray-900 mb-2">
-            {ASOCIACION_INFO.nombre}
+            {userProfile?.organizacion?.nombre || ASOCIACION_INFO.nombre}
           </h2>
           <p className="text-xs text-gray-600">
-            {ASOCIACION_INFO.ubicacion}
+            {userProfile?.organizacion?.direccion || ASOCIACION_INFO.ubicacion}
           </p>
+          {/* Badge de rol */}
+          {rolLabel && (
+            <div className="mt-2">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {rolLabel}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
           <ul className="space-y-1">
-            {MENU_ITEMS.map((item) => (
+            {menuItems.map((item) => (
               <li key={item.id}>
                 <button
                   onClick={() => handleItemClick(item.id)}

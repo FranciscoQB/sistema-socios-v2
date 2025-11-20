@@ -8,6 +8,8 @@ import * as reunionesService from '../services/supabase/reunionesService';
 import * as libroCajaService from '../services/supabase/libroCajaService';
 import * as recibosService from '../services/supabase/recibosService';
 import * as documentosService from '../services/supabase/documentosService';
+import * as registroMasivoService from '../services/supabase/registroMasivoService';
+import * as usuariosService from '../services/supabase/usuariosService';
 
 const AppContext = createContext({});
 
@@ -30,6 +32,8 @@ export const AppProvider = ({ children }) => {
   const [documentos, setDocumentos] = useState([]);
   const [avisos, setAvisos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [registrosMasivos, setRegistrosMasivos] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
 
   // UI States
   const [currentView, setCurrentView] = useState('inicio');
@@ -51,7 +55,9 @@ export const AppProvider = ({ children }) => {
       loadLibroCaja(),
       loadRecibos(),
       loadDocumentos(),
-      loadAvisos()
+      loadAvisos(),
+      loadRegistrosMasivos(),
+      loadUsuarios()
     ]);
     setLoading(false);
   };
@@ -283,6 +289,54 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // ==================== USUARIOS ====================
+  const loadUsuarios = async () => {
+    try {
+      const { data, error } = await usuariosService.getUsuarios();
+      if (error) {
+        console.error('Error cargando usuarios:', error);
+        setUsuarios([]);
+      } else {
+        setUsuarios(data || []);
+      }
+    } catch (error) {
+      console.error('Error cargando usuarios:', error);
+      setUsuarios([]);
+    }
+  };
+
+  const addUsuario = async (usuarioData) => {
+  const { data, error } = await usuariosService.createUsuario(usuarioData);
+  if (!error && data) {
+    setUsuarios([...usuarios, data]);
+  }
+  return { data, error };
+};
+
+const updateUsuario = async (id, usuarioData) => {
+  const { data, error } = await usuariosService.updateUsuario(id, usuarioData);
+  if (!error && data) {
+    setUsuarios(usuarios.map(u => u.id === id ? data : u));
+  }
+  return { data, error };
+};
+
+const removeUsuario = async (id) => {
+  const { error } = await usuariosService.deleteUsuario(id);
+  if (!error) {
+    setUsuarios(usuarios.filter(u => u.id !== id));
+  }
+  return { error };
+};
+
+const cambiarEstadoUsuario = async (id, nuevoEstado) => {
+  const { data, error } = await usuariosService.cambiarEstadoUsuario(id, nuevoEstado);
+  if (!error && data) {
+    setUsuarios(usuarios.map(u => u.id === id ? data : u));
+  }
+  return { data, error };
+};
+
   // ==================== CÁLCULOS ====================
   const getSociosActivos = () => {
     return socios.filter(s => s.estado === 'activo');
@@ -323,6 +377,53 @@ export const AppProvider = ({ children }) => {
     };
   };
 
+  // ==================== REGISTROS MASIVOS ====================
+const loadRegistrosMasivos = async () => {
+  const { data } = await registroMasivoService.getRegistrosMasivos();
+  setRegistrosMasivos(data);
+};
+
+const validarDuplicados = async (sociosIds, mes, año) => {
+  return await registroMasivoService.validarDuplicados(sociosIds, mes, año);
+};
+
+const crearRegistroMasivo = async (registroData, aportes) => {
+  const { data, error } = await registroMasivoService.crearRegistroMasivo(registroData, aportes);
+  if (!error && data) {
+    setRegistrosMasivos([data.registroMasivo, ...registrosMasivos]);
+    // Recargar aportes y socios para actualizar las vistas
+    await loadAportes();
+    await loadSocios();
+  }
+  return { data, error };
+};
+
+const getRegistroMasivoConAportes = async (registroMasivoId) => {
+  return await registroMasivoService.getRegistroMasivoConAportes(registroMasivoId);
+};
+
+const actualizarAporteIndividual = async (aporteId, aporteData) => {
+  const { data, error } = await registroMasivoService.actualizarAporteIndividual(aporteId, aporteData);
+  if (!error && data) {
+    // Actualizar el aporte en la lista general
+    setAportes(aportes.map(a => a.id === aporteId ? data : a));
+    // Recargar socios para actualizar montos
+    await loadSocios();
+  }
+  return { data, error };
+};
+
+const eliminarRegistroMasivo = async (registroMasivoId) => {
+  const { error } = await registroMasivoService.eliminarRegistroMasivo(registroMasivoId);
+  if (!error) {
+    setRegistrosMasivos(registrosMasivos.filter(rm => rm.id !== registroMasivoId));
+    // Recargar aportes y socios
+    await loadAportes();
+    await loadSocios();
+  }
+  return { error };
+};
+
   const value = {
     // Estados
     socios,
@@ -333,6 +434,8 @@ export const AppProvider = ({ children }) => {
     recibos,
     documentos,
     avisos,
+    registrosMasivos,
+    usuarios,
     loading,
     currentView,
     sidebarOpen,
@@ -350,6 +453,7 @@ export const AppProvider = ({ children }) => {
     loadLibroCaja,
     loadRecibos,
     loadDocumentos,
+    loadUsuarios,
 
     // Socios
     addSocio,
@@ -385,6 +489,20 @@ export const AppProvider = ({ children }) => {
     // Documentos
     uploadDocumento,
     removeDocumento,
+
+    // Registros Masivos ← AGREGAR ESTA SECCIÓN COMPLETA
+    loadRegistrosMasivos,
+    validarDuplicados,
+    crearRegistroMasivo,
+    getRegistroMasivoConAportes,
+    actualizarAporteIndividual,
+    eliminarRegistroMasivo,
+
+      // Usuarios
+    addUsuario,
+    updateUsuario,
+    removeUsuario,
+    cambiarEstadoUsuario,
 
     // Cálculos
     getSociosActivos,
